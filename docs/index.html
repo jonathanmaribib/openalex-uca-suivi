@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suivi OpenAlex – Université Côte d'Azur</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f6f7;--ink:#14212b;--mute:#5d6b76;--line:#d5dce1;--core:#1f5c8b;--xpac:#d9a21b;--up:#1d7a4a;--down:#b3372f}
+@media (prefers-color-scheme:dark){:root{--bg:#10171c;--ink:#e6edf1;--mute:#93a1ab;--line:#2a3640;--core:#5aa2d6;--xpac:#e8b94a;--up:#52c58a;--down:#ef7b73}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
+h1{font-size:22px;margin:0 0 4px}
+.sub{color:var(--mute);margin:0 0 22px}
+.bar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:4px}
+select,input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 8px;min-width:200px}
+select:focus-visible,input:focus-visible{outline:2px solid var(--core);outline-offset:1px}
+.kpis{display:flex;flex-wrap:wrap;margin:26px 0}
+.kpi{padding:0 28px 0 0;margin-right:28px;border-right:1px solid var(--line)}
+.kpi:last-child{border:0}
+.kpi b{display:block;font-size:34px;font-weight:600;line-height:1.1}
+.kpi span{color:var(--mute);font-size:13px}
+.d{font-size:13px;font-weight:600;margin-left:6px}
+.up{color:var(--up)}.down{color:var(--down)}
+.grid{display:grid;grid-template-columns:2fr 1fr;gap:28px}
+.grid2{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:28px}
+@media(max-width:800px){.grid,.grid2{grid-template-columns:1fr}}
+h2{font-size:15px;margin:0 0 8px}
+.box{position:relative;height:260px}
+table{width:100%;border-collapse:collapse;margin-top:8px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+th{font-weight:600;color:var(--mute);font-size:13px}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
+.wrap{max-height:420px;overflow:auto}
+.note{color:var(--mute);font-size:13px;margin-top:10px}
+</style>
+</head>
+<body>
+<main>
+<h1>Suivi OpenAlex – Université Côte d'Azur</h1>
+<p class="sub">Résumé des snapshots d'extraction (works rattachés au lineage UCA).</p>
+
+<div class="bar">
+  <label>Snapshot<select id="snap"></select></label>
+  <label>Comparer à<select id="cmp"><option value="">(aucun)</option></select></label>
+  <label>Corpus<select id="corp">
+    <option value="core">Corpus principal</option>
+    <option value="xpac">XPAC seul</option>
+    <option value="all">Tous</option></select></label>
+</div>
+
+<div class="kpis" id="kpis"></div>
+
+<div class="grid">
+  <section><h2>Works par année</h2><div class="box"><canvas id="cYear"></canvas></div></section>
+  <section><h2>Statut open access</h2><div class="box"><canvas id="cOa"></canvas></div></section>
+  <div class="grid2">
+    <section><h2>Types de documents</h2><div class="box"><canvas id="cType"></canvas></div></section>
+    <section><h2>Labos</h2>
+      <input id="q" type="search" placeholder="Filtrer les labos" aria-label="Filtrer les labos">
+      <div class="wrap"><table><thead><tr><th>Labo</th><th class="n">Works</th><th class="n" id="thd">Écart</th></tr></thead><tbody id="tb"></tbody></table></div>
+    </section>
+  </div>
+</div>
+<p class="note" id="note"></p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const cache = {}, charts = {};
+const fmt = n => n.toLocaleString("fr-FR");
+const pick = (o, c) => c === "all" ? (o.core || 0) + (o.xpac || 0) : (o[c] || 0);
+
+async function load(f) {
+  if (!cache[f]) cache[f] = await (await fetch("data/" + f)).json();
+  return cache[f];
+}
+
+function chart(id, cfg) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart($(id), cfg);
+}
+
+const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+
+async function render() {
+  const a = await load($("snap").value);
+  const b = $("cmp").value ? await load($("cmp").value) : null;
+  const c = $("corp").value;
+  const tot = (d, k) => pick({core: d.totals.core[k], xpac: d.totals.xpac[k]}, c);
+  const nLabs = d => d.labs.filter(l => !l.direct && pick(l, c) > 0).length;
+
+  const kp = [
+    ["Works", tot(a, "works"), b && tot(b, "works")],
+    ["Sans DOI", tot(a, "sans_doi"), b && tot(b, "sans_doi")],
+    ["Affiliation directe UCA, sans labo", tot(a, "direct_sans_labo"), b && tot(b, "direct_sans_labo")],
+    ["Labos avec au moins un work", nLabs(a), b && nLabs(b)],
+  ];
+  $("kpis").innerHTML = kp.map(([l, v, p]) => {
+    const dl = p === null ? "" : (() => { const x = v - p; return `<span class="d ${x>=0?"up":"down"}">${x>=0?"+":""}${fmt(x)}</span>`; })();
+    return `<div class="kpi"><b>${fmt(v)}${dl}</b><span>${l}</span></div>`;
+  }).join("");
+
+  const years = Object.keys(a.by_year).filter(y => /^\d{4}$/.test(y) && +y >= 1990).sort();
+  const stack = c === "all";
+  const ds = (src, keys, key) => (stack ? ["core", "xpac"] : [c]).map(k => ({
+    label: k === "core" ? "Corpus principal" : "XPAC",
+    data: keys.map(x => (src[x] || {})[k] || 0),
+    backgroundColor: css(k === "core" ? "--core" : "--xpac"), stack: "s"}));
+  const axisCol = {ticks: {color: css("--mute")}, grid: {color: css("--line")}};
+  const base = {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: stack, labels: {color: css("--mute")}}}};
+
+  chart("cYear", {type: "bar", data: {labels: years, datasets: ds(a.by_year, years)},
+    options: {...base, scales: {x: {...axisCol, stacked: true}, y: {...axisCol, stacked: true}}}});
+
+  const oaKeys = Object.keys(a.by_oa).sort((x, y) => pick(a.by_oa[y], c) - pick(a.by_oa[x], c));
+  const pal = ["#1f5c8b", "#d9a21b", "#5aa2d6", "#8a6fb5", "#6aa84f", "#b3372f", "#7d8b95"];
+  chart("cOa", {type: "doughnut", data: {labels: oaKeys, datasets: [{data: oaKeys.map(k => pick(a.by_oa[k], c)), backgroundColor: pal, borderColor: css("--bg")}]},
+    options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: "right", labels: {color: css("--mute")}}}}});
+
+  const tKeys = Object.keys(a.by_type).sort((x, y) => pick(a.by_type[y], c) - pick(a.by_type[x], c)).slice(0, 8);
+  chart("cType", {type: "bar", data: {labels: tKeys, datasets: ds(a.by_type, tKeys)},
+    options: {...base, indexAxis: "y", scales: {x: {...axisCol, stacked: true}, y: {...axisCol, stacked: true}}}});
+
+  const prev = b ? Object.fromEntries(b.labs.map(l => [l.id, pick(l, c)])) : null;
+  const q = $("q").value.toLowerCase();
+  $("thd").style.display = b ? "" : "none";
+  $("tb").innerHTML = a.labs.filter(l => !l.direct && l.name.toLowerCase().includes(q))
+    .map(l => ({...l, n: pick(l, c)})).filter(l => l.n > 0 || (prev && prev[l.id]))
+    .sort((x, y) => y.n - x.n).slice(0, 300).map(l => {
+      const x = prev ? l.n - (prev[l.id] || 0) : 0;
+      return `<tr><td>${l.name}</td><td class="n">${fmt(l.n)}</td>` +
+        (b ? `<td class="n ${x>=0?"up":"down"}">${x>=0?"+":""}${fmt(x)}</td>` : "") + `</tr>`;
+    }).join("");
+
+  $("note").textContent = `Snapshot du ${a.date || "?"} (corpus extrait : ${a.corpus || "?"}). ` +
+    "Un work cosigné par plusieurs labos compte dans chacun ; le total UCA compte chaque work une seule fois.";
+}
+
+(async () => {
+  const idx = await (await fetch("data/index.json")).json();
+  idx.reverse();
+  const opt = i => `<option value="${i.file}">${i.date || ""} · ${i.snapshot}</option>`;
+  $("snap").innerHTML = idx.map(opt).join("");
+  $("cmp").innerHTML += idx.map(opt).join("");
+  ["snap", "cmp", "corp"].forEach(id => $(id).addEventListener("change", render));
+  $("q").addEventListener("input", render);
+  render();
+})();
+</script>
+</body>
+</html>
