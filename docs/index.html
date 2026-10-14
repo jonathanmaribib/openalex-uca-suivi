@@ -42,7 +42,7 @@ td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 <body>
 <main>
 <h1>Suivi OpenAlex – Université Côte d'Azur</h1>
-<p class="sub">Résumé des snapshots d'extraction (works rattachés au lineage UCA).</p>
+<p class="sub">Résumé des snapshots d'extraction (works rattachés au lineage UniCA).</p>
 
 <div class="bar">
   <label>Snapshot<select id="snap"></select></label>
@@ -97,7 +97,7 @@ async function render() {
   const kp = [
     ["Works", tot(a, "works"), b && tot(b, "works")],
     ["Sans DOI", tot(a, "sans_doi"), b && tot(b, "sans_doi")],
-    ["Affiliation directe UCA, sans labo", tot(a, "direct_sans_labo"), b && tot(b, "direct_sans_labo")],
+    ["Affiliation directe UniCA, sans labo", tot(a, "direct_sans_labo"), b && tot(b, "direct_sans_labo")],
     ["Labos avec au moins un work", nLabs(a), b && nLabs(b)],
   ];
   $("kpis").innerHTML = kp.map(([l, v, p]) => {
@@ -138,7 +138,7 @@ async function render() {
     }).join("");
 
   $("note").textContent = `Snapshot du ${a.date || "?"} (corpus extrait : ${a.corpus || "?"}). ` +
-    "Un work cosigné par plusieurs labos compte dans chacun ; le total UCA compte chaque work une seule fois.";
+    "Un work cosigné par plusieurs labos compte dans chacun ; le total UniCA compte chaque work une seule fois.";
 }
 
 (async () => {

@@ -3,3 +3,4 @@ snapshots/
 *.jsonl.gz
 extract_raw*.py
 *.env
+__pycache__/
