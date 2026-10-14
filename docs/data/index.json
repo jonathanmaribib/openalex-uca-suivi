@@ -3,6 +3,34 @@
   "file": "lineage_all_2026-10-02.json",
   "snapshot": "lineage_all_2026-10-02",
   "date": "2026-10-02",
-  "corpus": "all"
+  "corpus": "all",
+  "works": 128313,
+  "core": 116946,
+  "xpac": 11367,
+  "complet": true
+ },
+ {
+  "file": "lineage_all_2026-10-12.json",
+  "snapshot": "lineage_all_2026-10-12",
+  "date": "2026-10-12",
+  "corpus": "all",
+  "works": 125440,
+  "core": 115655,
+  "xpac": 9785,
+  "complet": true,
+  "vs_precedent": {
+   "de": "lineage_all_2026-10-02",
+   "jours": 10,
+   "communs": 125000,
+   "disparus": 3313,
+   "apparus": 440,
+   "solde": -2873,
+   "fusionnes": 3284,
+   "sortis_perimetre": 27,
+   "introuvables": 2,
+   "rattaches": 298,
+   "fusions": 10,
+   "nouveaux_records": 132
+  }
  }
 ]

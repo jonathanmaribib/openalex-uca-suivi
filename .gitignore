@@ -1,6 +1,3 @@
-snapshots/
-*.csv
-*.jsonl.gz
-extract_raw*.py
-*.env
-__pycache__/
+/*
+!/docs/
+!/.gitignore
