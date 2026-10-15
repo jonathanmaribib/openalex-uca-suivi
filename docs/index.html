@@ -4,152 +4,446 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Suivi OpenAlex – Université Côte d'Azur</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%88%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Serif:wght@500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 <style>
-:root{--bg:#f4f6f7;--ink:#14212b;--mute:#5d6b76;--line:#d5dce1;--core:#1f5c8b;--xpac:#d9a21b;--up:#1d7a4a;--down:#b3372f}
-@media (prefers-color-scheme:dark){:root{--bg:#10171c;--ink:#e6edf1;--mute:#93a1ab;--line:#2a3640;--core:#5aa2d6;--xpac:#e8b94a;--up:#52c58a;--down:#ef7b73}}
+:root{
+  --bg:#f3f5f4; --ink:#1b2430; --mute:#5b6773; --line:#d3d9d7; --soft:#e4eae8;
+  --core:#24527a; --xpac:#c9971c;
+  --c-intro:#a8324a; --c-fus:#5b4bb7; --c-sortis:#d2691e; --c-nc:#7a8794;
+  --c-nouv:#0f766e; --c-ratt:#6a9f2f; --up:#0f766e; --down:#a8324a;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#12181e; --ink:#e8edf0; --mute:#95a2ad; --line:#2b3640; --soft:#1b242c;
+  --core:#6aa6d8; --xpac:#e3b341;
+  --c-intro:#ef7c92; --c-fus:#9b8cf0; --c-sortis:#f0a15f; --c-nc:#8d9aa6;
+  --c-nouv:#4fc7ba; --c-ratt:#9acd5f; --up:#4fc7ba; --down:#ef7c92;
+}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "IBM Plex Sans",system-ui,sans-serif}
-main{max-width:1100px;margin:0 auto;padding:28px 20px 60px}
-h1{font-size:22px;margin:0 0 4px}
-.sub{color:var(--mute);margin:0 0 22px}
-.bar{display:flex;flex-wrap:wrap;gap:16px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:4px}
-select,input{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 8px;min-width:200px}
-select:focus-visible,input:focus-visible{outline:2px solid var(--core);outline-offset:1px}
-.kpis{display:flex;flex-wrap:wrap;margin:26px 0}
-.kpi{padding:0 28px 0 0;margin-right:28px;border-right:1px solid var(--line)}
-.kpi:last-child{border:0}
-.kpi b{display:block;font-size:34px;font-weight:600;line-height:1.1}
-.kpi span{color:var(--mute);font-size:13px}
-.d{font-size:13px;font-weight:600;margin-left:6px}
-.up{color:var(--up)}.down{color:var(--down)}
-.grid{display:grid;grid-template-columns:2fr 1fr;gap:28px}
-.grid2{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:28px}
-@media(max-width:800px){.grid,.grid2{grid-template-columns:1fr}}
-h2{font-size:15px;margin:0 0 8px}
-.box{position:relative;height:260px}
-table{width:100%;border-collapse:collapse;margin-top:8px}
-th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
-th{font-weight:600;color:var(--mute);font-size:13px}
-td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
-.wrap{max-height:420px;overflow:auto}
-.note{color:var(--mute);font-size:13px;margin-top:10px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "IBM Plex Sans",system-ui,sans-serif}
+main{max-width:1120px;margin:0 auto;padding:28px 20px 70px}
+h1{font-size:20px;margin:0 0 2px;font-weight:600}
+h2{font-size:15px;margin:0 0 10px;font-weight:600}
+.sub{color:var(--mute);margin:0 0 20px}
+.bar{display:flex;flex-wrap:wrap;gap:18px;padding:14px 0;border-top:1px solid var(--line)}
+label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+select,input[type=search]{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 8px;min-width:210px}
+select:focus-visible,input:focus-visible,button:focus-visible,summary:focus-visible,th button:focus-visible{outline:2px solid var(--core);outline-offset:2px}
+.alerte{border-left:3px solid var(--c-sortis);padding:6px 12px;margin:8px 0 0;background:var(--soft)}
+.tabs{display:flex;flex-wrap:wrap;gap:4px 22px;border-bottom:1px solid var(--line);margin:14px 0 26px}
+.tabs button{font:inherit;background:none;border:0;border-bottom:3px solid transparent;color:var(--mute);padding:8px 0;cursor:pointer;margin-bottom:-1px}
+.tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--ink);font-weight:600}
+.hero{font:500 25px/1.3 "IBM Plex Serif",Georgia,serif;margin:0 0 10px;max-width:34em}
+.chapeau{color:var(--mute);margin:0 0 30px;max-width:44em}
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:44px;margin-bottom:34px}
+.stack{display:flex;height:16px;border-radius:2px;overflow:hidden;background:var(--soft);margin:8px 0 12px}
+.stack span{min-width:2px}
+.legend{list-style:none;margin:0;padding:0}
+.legend li{display:grid;grid-template-columns:12px 1fr auto 56px;gap:10px;align-items:baseline;padding:4px 0;border-top:1px solid var(--line)}
+.legend i{width:12px;height:12px;border-radius:2px;display:inline-block;align-self:center}
+.legend b,.legend em,td.n,th.n{font-variant-numeric:tabular-nums}
+.legend em{color:var(--mute);font-style:normal;text-align:right}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:34px 44px;margin-bottom:30px}
+.box{position:relative;height:270px}
+.wide{grid-column:1/-1}
+.chiffres{display:flex;flex-wrap:wrap;gap:6px 38px;margin:0 0 28px}
+.chiffres div{min-width:120px}
+.chiffres dt{color:var(--mute);font-size:13px}
+.chiffres dd{margin:0;font-size:24px;font-weight:600;font-variant-numeric:tabular-nums}
+.chiffres dd small{font-size:13px;font-weight:400;color:var(--mute)}
+.wrap{overflow:auto;max-height:560px;border-top:1px solid var(--line)}
+table{border-collapse:collapse;width:100%}
+th,td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line);vertical-align:baseline}
+th{font-weight:600;font-size:13px;color:var(--mute);background:var(--bg);position:sticky;top:0}
+th button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;font-weight:inherit}
+td.n,th.n{text-align:right}
+.pos{color:var(--up)}.neg{color:var(--down)}.nul{color:var(--mute)}
+.sous{display:block;color:var(--mute);font-size:12px}
+.outils{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 12px}
+.note{color:var(--mute);font-size:13px;max-width:52em}
+details.aide{margin-top:10px;border-top:1px solid var(--line);padding-top:10px}
+details.aide summary{cursor:pointer;font-weight:600}
+details.aide dl{margin:12px 0 0;display:grid;grid-template-columns:max-content 1fr;gap:6px 18px}
+details.aide dt{font-weight:600}.aide dd{margin:0;color:var(--mute)}
+.vide{padding:28px 0;max-width:40em}
+.vide b{display:block;font-size:17px;margin-bottom:4px}
+@media(max-width:820px){.ledger,.grid{grid-template-columns:1fr}.hero{font-size:21px}}
 </style>
 </head>
 <body>
 <main>
-<h1>Suivi OpenAlex – Université Côte d'Azur</h1>
-<p class="sub">Résumé des snapshots d'extraction (works rattachés au lineage UniCA).</p>
+  <h1>Suivi OpenAlex – Université Côte d'Azur</h1>
+  <p class="sub" id="sub">Chargement des jalons…</p>
 
-<div class="bar">
-  <label>Snapshot<select id="snap"></select></label>
-  <label>Comparer à<select id="cmp"><option value="">(aucun)</option></select></label>
-  <label>Corpus<select id="corp">
-    <option value="core">Corpus principal</option>
-    <option value="xpac">XPAC seul</option>
-    <option value="all">Tous</option></select></label>
-</div>
-
-<div class="kpis" id="kpis"></div>
-
-<div class="grid">
-  <section><h2>Works par année</h2><div class="box"><canvas id="cYear"></canvas></div></section>
-  <section><h2>Statut open access</h2><div class="box"><canvas id="cOa"></canvas></div></section>
-  <div class="grid2">
-    <section><h2>Types de documents</h2><div class="box"><canvas id="cType"></canvas></div></section>
-    <section><h2>Labos</h2>
-      <input id="q" type="search" placeholder="Filtrer les labos" aria-label="Filtrer les labos">
-      <div class="wrap"><table><thead><tr><th>Labo</th><th class="n">Works</th><th class="n" id="thd">Écart</th></tr></thead><tbody id="tb"></tbody></table></div>
-    </section>
+  <div class="bar">
+    <label>Jalon<select id="snap"></select></label>
+    <label id="lcmp">Évolution depuis<select id="cmp"></select></label>
+    <label id="lcorp" hidden>Corpus
+      <select id="corp"><option value="core">Corpus principal</option><option value="xpac">XPAC seul</option><option value="all">Tous</option></select></label>
   </div>
-</div>
-<p class="note" id="note"></p>
+  <div id="alerte" class="alerte" role="status" hidden></div>
+
+  <nav class="tabs" role="tablist" aria-label="Vues">
+    <button role="tab" data-tab="evolution" aria-selected="true">Évolution</button>
+    <button role="tab" data-tab="structures" aria-selected="false">Par structure</button>
+    <button role="tab" data-tab="etat" aria-selected="false">État du jalon</button>
+    <button role="tab" data-tab="qualite" aria-selected="false">Qualité</button>
+  </nav>
+
+  <section id="p-evolution" role="tabpanel"></section>
+  <section id="p-structures" role="tabpanel" hidden></section>
+  <section id="p-etat" role="tabpanel" hidden></section>
+  <section id="p-qualite" role="tabpanel" hidden></section>
+
+  <p class="note" style="margin-top:44px">Données : OpenAlex. Les modifications dues à l'outil de curation ne sont pas identifiables à part : elles se mélangent à l'évolution naturelle de la plateforme.</p>
 </main>
 
 <script>
+(() => {
+"use strict";
 const $ = id => document.getElementById(id);
-const cache = {}, charts = {};
-const fmt = n => n.toLocaleString("fr-FR");
-const pick = (o, c) => c === "all" ? (o.core || 0) + (o.xpac || 0) : (o[c] || 0);
-
-async function load(f) {
-  if (!cache[f]) cache[f] = await (await fetch("data/" + f)).json();
-  return cache[f];
-}
-
-function chart(id, cfg) {
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart($(id), cfg);
-}
-
+const fmt = n => (n ?? 0).toLocaleString("fr-FR");
+const sgn = n => (n > 0 ? "+" : n < 0 ? "−" : "") + fmt(Math.abs(n || 0));
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const jour = d => d ? new Date(d + "T00:00:00").toLocaleDateString("fr-FR", {day: "numeric", month: "long", year: "numeric"}) : "date inconnue";
+const pick = (o, c) => !o ? 0 : c === "all" ? (o.core || 0) + (o.xpac || 0) : (o[c] || 0);
+const somme = o => (o?.core || 0) + (o?.xpac || 0);
+const classe = n => n > 0 ? "pos" : n < 0 ? "neg" : "nul";
 
-async function render() {
-  const a = await load($("snap").value);
-  const b = $("cmp").value ? await load($("cmp").value) : null;
-  const c = $("corp").value;
-  const tot = (d, k) => pick({core: d.totals.core[k], xpac: d.totals.xpac[k]}, c);
-  const nLabs = d => d.labs.filter(l => !l.direct && pick(l, c) > 0).length;
+const SORTIES = [
+  ["fusionnes", "Fusionnés : doublons absorbés par une autre fiche", "--c-fus", "fusionnés"],
+  ["introuvables", "Introuvables : supprimés probables", "--c-intro", "introuvables"],
+  ["sortis_perimetre", "Sortis du périmètre UCA", "--c-sortis", "sortis du périmètre"],
+  ["anomalie_present", "Encore dans le périmètre (à vérifier)", "--c-nc", "encore dans le périmètre"],
+  ["non_classes", "Non classés (vérification non lancée)", "--c-nc", "non classés"]];
+const ENTREES = [
+  ["nouveaux_records", "Nouveaux records OpenAlex", "--c-nouv"],
+  ["rattaches", "Rattachés : existaient déjà dans OpenAlex", "--c-ratt"],
+  ["fusions", "Fusions : ancien work sous un nouvel identifiant", "--c-fus"],
+  ["non_determines", "Origine non déterminée", "--c-nc"]];
 
-  const kp = [
-    ["Works", tot(a, "works"), b && tot(b, "works")],
-    ["Sans DOI", tot(a, "sans_doi"), b && tot(b, "sans_doi")],
-    ["Affiliation directe UniCA, sans labo", tot(a, "direct_sans_labo"), b && tot(b, "direct_sans_labo")],
-    ["Labos avec au moins un work", nLabs(a), b && nLabs(b)],
-  ];
-  $("kpis").innerHTML = kp.map(([l, v, p]) => {
-    const dl = p === null ? "" : (() => { const x = v - p; return `<span class="d ${x>=0?"up":"down"}">${x>=0?"+":""}${fmt(x)}</span>`; })();
-    return `<div class="kpi"><b>${fmt(v)}${dl}</b><span>${l}</span></div>`;
-  }).join("");
+const S = {index: [], cache: {}, tab: "evolution", charts: {}, d: null, q: "", ens: "", tri: {col: "activite", dir: -1}};
+const PANNEAUX = {evolution: vueEvolution, structures: vueStructures, etat: vueEtat, qualite: vueQualite};
 
-  const years = Object.keys(a.by_year).filter(y => /^\d{4}$/.test(y) && +y >= 1990).sort();
-  const stack = c === "all";
-  const ds = (src, keys, key) => (stack ? ["core", "xpac"] : [c]).map(k => ({
-    label: k === "core" ? "Corpus principal" : "XPAC",
-    data: keys.map(x => (src[x] || {})[k] || 0),
-    backgroundColor: css(k === "core" ? "--core" : "--xpac"), stack: "s"}));
-  const axisCol = {ticks: {color: css("--mute")}, grid: {color: css("--line")}};
-  const base = {responsive: true, maintainAspectRatio: false, plugins: {legend: {display: stack, labels: {color: css("--mute")}}}};
-
-  chart("cYear", {type: "bar", data: {labels: years, datasets: ds(a.by_year, years)},
-    options: {...base, scales: {x: {...axisCol, stacked: true}, y: {...axisCol, stacked: true}}}});
-
-  const oaKeys = Object.keys(a.by_oa).sort((x, y) => pick(a.by_oa[y], c) - pick(a.by_oa[x], c));
-  const pal = ["#1f5c8b", "#d9a21b", "#5aa2d6", "#8a6fb5", "#6aa84f", "#b3372f", "#7d8b95"];
-  chart("cOa", {type: "doughnut", data: {labels: oaKeys, datasets: [{data: oaKeys.map(k => pick(a.by_oa[k], c)), backgroundColor: pal, borderColor: css("--bg")}]},
-    options: {responsive: true, maintainAspectRatio: false, plugins: {legend: {position: "right", labels: {color: css("--mute")}}}}});
-
-  const tKeys = Object.keys(a.by_type).sort((x, y) => pick(a.by_type[y], c) - pick(a.by_type[x], c)).slice(0, 8);
-  chart("cType", {type: "bar", data: {labels: tKeys, datasets: ds(a.by_type, tKeys)},
-    options: {...base, indexAxis: "y", scales: {x: {...axisCol, stacked: true}, y: {...axisCol, stacked: true}}}});
-
-  const prev = b ? Object.fromEntries(b.labs.map(l => [l.id, pick(l, c)])) : null;
-  const q = $("q").value.toLowerCase();
-  $("thd").style.display = b ? "" : "none";
-  $("tb").innerHTML = a.labs.filter(l => !l.direct && l.name.toLowerCase().includes(q))
-    .map(l => ({...l, n: pick(l, c)})).filter(l => l.n > 0 || (prev && prev[l.id]))
-    .sort((x, y) => y.n - x.n).slice(0, 300).map(l => {
-      const x = prev ? l.n - (prev[l.id] || 0) : 0;
-      return `<tr><td>${l.name}</td><td class="n">${fmt(l.n)}</td>` +
-        (b ? `<td class="n ${x>=0?"up":"down"}">${x>=0?"+":""}${fmt(x)}</td>` : "") + `</tr>`;
-    }).join("");
-
-  $("note").textContent = `Snapshot du ${a.date || "?"} (corpus extrait : ${a.corpus || "?"}). ` +
-    "Un work cosigné par plusieurs labos compte dans chacun ; le total UniCA compte chaque work une seule fois.";
+// ---------------------------------------------------------------- données
+async function charger(fichier) {
+  if (!S.cache[fichier]) {
+    const r = await fetch("data/" + fichier);
+    if (!r.ok) throw new Error(fichier + " : HTTP " + r.status);
+    S.cache[fichier] = await r.json();
+  }
+  return S.cache[fichier];
 }
 
-(async () => {
-  const idx = await (await fetch("data/index.json")).json();
-  idx.reverse();
-  const opt = i => `<option value="${i.file}">${i.date || ""} · ${i.snapshot}</option>`;
-  $("snap").innerHTML = idx.map(opt).join("");
-  $("cmp").innerHTML += idx.map(opt).join("");
-  ["snap", "cmp", "corp"].forEach(id => $(id).addEventListener("change", render));
-  $("q").addEventListener("input", render);
-  render();
+function vide(titre, texte) { return `<div class="vide"><b>${esc(titre)}</b>${esc(texte)}</div>`; }
+
+// ---------------------------------------------------------------- graphiques
+function axe(extra) { return Object.assign({ticks: {color: css("--mute")}, grid: {color: css("--line")}}, extra || {}); }
+function graphique(id, cfg) {
+  const el = $(id);
+  if (!el || typeof Chart === "undefined") return;
+  if (S.charts[id]) S.charts[id].destroy();
+  cfg.options = Object.assign({responsive: true, maintainAspectRatio: false, animation: false}, cfg.options || {});
+  cfg.options.plugins = Object.assign({legend: {labels: {color: css("--mute")}}}, cfg.options.plugins || {});
+  S.charts[id] = new Chart(el, cfg);
+}
+function canvas(id, titre) { return `<div class="box"><canvas id="${id}" role="img" aria-label="${esc(titre)}"></canvas></div>`; }
+
+// Barre empilée + légende chiffrée : la lecture ne repose jamais sur la seule couleur
+function composition(items, donnees) {
+  const lignes = items.map(([k, l, c]) => ({l, c, n: donnees?.[k] || 0})).filter(x => x.n > 0);
+  const total = lignes.reduce((a, x) => a + x.n, 0);
+  if (!total) return '<p class="note">Aucun work.</p>';
+  return `<div class="stack" role="img" aria-label="${esc(lignes.map(x => x.l + " : " + fmt(x.n)).join(", "))}">` +
+    lignes.map(x => `<span style="flex:${x.n};background:var(${x.c})"></span>`).join("") + "</div>" +
+    '<ul class="legend">' + lignes.map(x =>
+      `<li><i style="background:var(${x.c})"></i><span>${esc(x.l)}</span><b>${fmt(x.n)}</b><em>${(100 * x.n / total).toFixed(1).replace(".", ",")} %</em></li>`).join("") + "</ul>";
+}
+
+// ---------------------------------------------------------------- vue : évolution
+function bloc(d) { return d.evolution?.[$("cmp").value]; }
+
+function vueEvolution(d) {
+  const p = $("p-evolution"), e = bloc(d);
+  if (!e) {
+    p.innerHTML = vide("Pas de comparaison pour ce jalon",
+      "C'est normal pour le premier jalon. Sinon, lance les scripts 05 et 08, puis 09 (voir la procédure).");
+    return;
+  }
+  const w = e.works, t = d.totals, nb = (t.core?.works || 0) + (t.xpac?.works || 0);
+  const dsc = e.disparus_par_sort_et_corpus || {};
+  const ligneCorpus = (lib, a, b) => `<tr><td>${lib}</td><td class="n">${fmt(a)}</td><td class="n">${fmt(b)}</td><td class="n">${fmt((a || 0) + (b || 0))}</td></tr>`;
+  const detail = SORTIES.filter(([k]) => dsc[k]).map(([k, , , court]) =>
+    ligneCorpus('<span class="sous" style="display:inline;margin-left:14px">dont ' + esc(court) + "</span>", dsc[k].core, dsc[k].xpac)).join("");
+  const lm = e.liens_labos;
+
+  p.innerHTML = `
+    <h2 class="hero">Entre le ${jour(e.date_de)} et le ${jour(d.date)}, ${fmt(w.disparus)} works ont quitté le périmètre d'UCA et ${fmt(w.apparus)} y sont entrés.</h2>
+    <p class="chapeau">Solde de ${sgn(w.solde)} works${e.jours != null ? " en " + fmt(e.jours) + " jours" : ""}. Le jalon compte ${fmt(nb)} works
+      (corpus principal ${fmt(t.core?.works)}, XPAC ${fmt(t.xpac?.works)}) et ${fmt(w.communs)} works sont communs aux deux jalons.</p>
+
+    <div class="ledger">
+      <section><h2>Sorties : pourquoi ces works ont disparu</h2>${composition(SORTIES, e.disparus)}</section>
+      <section><h2>Entrées : d'où viennent les nouveaux works</h2>${composition(ENTREES, e.apparus)}</section>
+    </div>
+
+    <div class="grid">
+      <section><h2>Par corpus</h2>
+        <div class="wrap"><table><thead><tr><th>Works</th><th class="n">Principal</th><th class="n">XPAC</th><th class="n">Total</th></tr></thead><tbody>
+          ${ligneCorpus("Disparus", e.disparus_par_corpus?.core, e.disparus_par_corpus?.xpac)}${detail}
+          ${ligneCorpus("Apparus", e.apparus_par_corpus?.core, e.apparus_par_corpus?.xpac)}
+        </tbody></table></div></section>
+      <section><h2>Liens vers les structures</h2>
+        <p>${lm ? `Sur des works restés dans le périmètre, <b>${fmt(lm.ajoutes_work_present)}</b> liens work × structure ont été ajoutés et <b>${fmt(lm.retires_work_conserve)}</b> retirés.` : "Non calculé pour ce jalon."}</p>
+        <p class="note">Ces mouvements ne font entrer ni sortir de works : ils changent seulement la structure à laquelle un work est rattaché.</p></section>
+
+      <section class="wide"><h2>Évolution du nombre de works à chaque jalon</h2>${canvas("g-works", "Nombre de works par jalon")}</section>
+      <section><h2>Disparus et apparus à chaque jalon</h2>${canvas("g-flux", "Disparus et apparus par jalon")}</section>
+      <section><h2>Par type de document</h2>${canvas("g-type", "Disparus et apparus par type")}</section>
+      <section class="wide"><h2>Par année de publication</h2>${canvas("g-annee", "Disparus et apparus par année de publication")}</section>
+    </div>
+
+    <details class="aide"><summary>Comment lire ces chiffres</summary><dl>
+      <dt>Fusionné</dt><dd>OpenAlex a regroupé deux fiches du même work : l'ancien identifiant disparaît, mais le DOI existe toujours sous un autre identifiant.</dd>
+      <dt>Introuvable</dt><dd>Ni l'identifiant ni le DOI ne retrouvent le work : il a probablement été supprimé.</dd>
+      <dt>Sorti du périmètre</dt><dd>Le work existe toujours, mais n'est plus rattaché à UCA ou à l'une de ses structures.</dd>
+      <dt>Rattaché</dt><dd>Le work existait déjà dans OpenAlex et a été rattaché à UCA depuis le jalon précédent (algorithme d'OpenAlex ou curation).</dd>
+      <dt>Par structure</dt><dd>Un work cosigné par plusieurs structures compte pour chacune ; le total général le compte une seule fois.</dd></dl></details>`;
+
+  const idx = S.index.filter(x => x.works != null);
+  const labels = idx.map(x => jour(x.date));
+  graphique("g-works", {type: "line", data: {labels, datasets: [
+    {label: "Total", data: idx.map(x => x.works), borderColor: css("--ink"), backgroundColor: css("--ink"), tension: .15},
+    {label: "Corpus principal", data: idx.map(x => x.core), borderColor: css("--core"), backgroundColor: css("--core"), tension: .15},
+    {label: "XPAC", data: idx.map(x => x.xpac), borderColor: css("--xpac"), backgroundColor: css("--xpac"), tension: .15}]},
+    options: {scales: {x: axe(), y: axe()}}});
+  graphique("g-flux", {type: "bar", data: {labels, datasets: [
+    {label: "Apparus", data: idx.map(x => x.vs_precedent?.apparus ?? null), backgroundColor: css("--c-nouv")},
+    {label: "Disparus", data: idx.map(x => x.vs_precedent ? -x.vs_precedent.disparus : null), backgroundColor: css("--c-intro")}]},
+    options: {scales: {x: axe({stacked: true}), y: axe({stacked: true})}}});
+
+  const types = Object.entries(e.par_type || {}).sort((a, b) => (b[1].disparus || 0) + (b[1].apparus || 0) - (a[1].disparus || 0) - (a[1].apparus || 0)).slice(0, 10);
+  graphique("g-type", {type: "bar", data: {labels: types.map(x => x[0]), datasets: [
+    {label: "Disparus", data: types.map(x => x[1].disparus || 0), backgroundColor: css("--c-intro")},
+    {label: "Apparus", data: types.map(x => x[1].apparus || 0), backgroundColor: css("--c-nouv")}]},
+    options: {indexAxis: "y", scales: {x: axe(), y: axe()}}});
+
+  const annees = {};
+  for (const [a, v] of Object.entries(e.par_annee || {})) {
+    if (!/^\d{4}$/.test(a)) continue;
+    const k = +a >= 1990 ? a : "avant 1990";
+    annees[k] = annees[k] || {disparus: 0, apparus: 0};
+    annees[k].disparus += v.disparus || 0; annees[k].apparus += v.apparus || 0;
+  }
+  const cles = Object.keys(annees).sort((a, b) => a === "avant 1990" ? -1 : b === "avant 1990" ? 1 : a - b);
+  graphique("g-annee", {type: "bar", data: {labels: cles, datasets: [
+    {label: "Disparus", data: cles.map(k => annees[k].disparus), backgroundColor: css("--c-intro")},
+    {label: "Apparus", data: cles.map(k => annees[k].apparus), backgroundColor: css("--c-nouv")}]},
+    options: {scales: {x: axe(), y: axe()}}});
+}
+
+// ---------------------------------------------------------------- vue : par structure
+const COLONNES = [
+  ["nom", "Structure", false], ["works", "Works", true], ["perdus", "Perdus", true], ["gagnes", "Gagnés", true],
+  ["solde", "Solde", true], ["fus", "dont fusionnés", true], ["sortis", "dont sortis", true],
+  ["intro", "dont introuvables", true], ["ratt", "dont rattachés", true], ["nouv", "dont nouveaux", true], ["liens", "Liens +/−", true]];
+
+function vueStructures(d) {
+  const p = $("p-structures"), e = bloc(d);
+  if (!e?.par_labo) {
+    p.innerHTML = vide("Pas de détail par structure pour ce jalon",
+      "Lance le script 05 sur work_labs.csv (colonnes openalex_id,lab_id), puis le 09.");
+    return;
+  }
+  const works = Object.fromEntries((d.labs || []).map(l => [l.id, somme(l)]));
+  const lignes = e.par_labo.map(l => {
+    const pe = l.perdus || {}, ga = l.gagnes || {};
+    return {id: l.id, nom: l.name, direct: l.direct, ensemble: l.ensemble || "", works: works[l.id] || 0,
+      perdus: pe.total || 0, gagnes: ga.total || 0, solde: (ga.total || 0) - (pe.total || 0),
+      fus: pe.fusionnes || 0, sortis: pe.sortis_perimetre || 0, intro: pe.introuvables || 0,
+      ratt: ga.rattaches || 0, nouv: ga.nouveaux_records || 0, lp: l.liens_ajoutes || 0, lm: l.liens_retires || 0,
+      liens: (l.liens_ajoutes || 0) - (l.liens_retires || 0), activite: (pe.total || 0) + (ga.total || 0)};
+  });
+  const ensembles = [...new Set(lignes.map(l => l.ensemble).filter(Boolean))].sort((a, b) => a.localeCompare(b, "fr"));
+  p.innerHTML = `
+    <div class="outils">
+      <label>Filtrer<input id="q" type="search" placeholder="Nom de structure" value="${esc(S.q)}"></label>
+      <label>Ensemble<select id="ens"><option value="">Tous</option>${ensembles.map(x => `<option${x === S.ens ? " selected" : ""}>${esc(x)}</option>`).join("")}</select></label>
+    </div>
+    <p class="note" id="cpt"></p>
+    <div class="wrap"><table><thead><tr id="entete"></tr></thead><tbody id="corps"></tbody></table></div>
+    <p class="note" style="margin-top:12px">Un work cosigné par plusieurs structures compte pour chacune. « Perdus » inclut les fusions : le work fusionné peut réapparaître sous un nouvel identifiant, compté dans « gagnés ». « Liens +/− » : liens work × structure ajoutés moins retirés sur des works restés dans le périmètre.</p>`;
+
+  const dessinerCorps = () => {
+    const q = S.q.trim().toLowerCase();
+    const sel = lignes.filter(l => (!q || l.nom.toLowerCase().includes(q)) && (!S.ens || l.ensemble === S.ens));
+    const {col, dir} = S.tri;
+    sel.sort((a, b) => col === "nom" ? dir * a.nom.localeCompare(b.nom, "fr") : dir * ((a[col] ?? 0) - (b[col] ?? 0)));
+    $("cpt").textContent = `${fmt(sel.length)} structure(s) sur ${fmt(lignes.length)} avec au moins un mouvement.`;
+    $("corps").innerHTML = sel.map(l => `<tr>
+      <td>${esc(l.nom)}${l.direct ? '<span class="sous">affiliation directe à UCA</span>' : (l.ensemble && l.ensemble !== l.nom ? `<span class="sous">${esc(l.ensemble)}</span>` : "")}</td>
+      <td class="n">${fmt(l.works)}</td><td class="n">${fmt(l.perdus)}</td><td class="n">${fmt(l.gagnes)}</td>
+      <td class="n ${classe(l.solde)}">${sgn(l.solde)}</td><td class="n">${fmt(l.fus)}</td><td class="n">${fmt(l.sortis)}</td>
+      <td class="n">${fmt(l.intro)}</td><td class="n">${fmt(l.ratt)}</td><td class="n">${fmt(l.nouv)}</td>
+      <td class="n">+${fmt(l.lp)} / −${fmt(l.lm)}</td></tr>`).join("");
+    $("entete").innerHTML = COLONNES.map(([k, lib, num]) => {
+      const actif = S.tri.col === k;
+      return `<th scope="col" class="${num ? "n" : ""}" aria-sort="${actif ? (S.tri.dir > 0 ? "ascending" : "descending") : "none"}"><button data-col="${k}">${esc(lib)}${actif ? (S.tri.dir > 0 ? " ▲" : " ▼") : ""}</button></th>`;
+    }).join("");
+    $("entete").querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+      const k = b.dataset.col;
+      S.tri = S.tri.col === k ? {col: k, dir: -S.tri.dir} : {col: k, dir: k === "nom" ? 1 : -1};
+      dessinerCorps();
+    }));
+  };
+  $("q").addEventListener("input", ev => { S.q = ev.target.value; dessinerCorps(); });
+  $("ens").addEventListener("change", ev => { S.ens = ev.target.value; dessinerCorps(); });
+  dessinerCorps();
+}
+
+// ---------------------------------------------------------------- vue : état du jalon
+function vueEtat(d) {
+  const c = $("corp").value, t = d.totals;
+  const v = k => pick({core: t.core?.[k], xpac: t.xpac?.[k]}, c);
+  const n = v("works");
+  const part = x => n ? ` (${(100 * x / n).toFixed(1).replace(".", ",")} %)` : "";
+  $("p-etat").innerHTML = `
+    <dl class="chiffres">
+      <div><dt>Works</dt><dd>${fmt(n)}</dd></div>
+      <div><dt>Sans DOI</dt><dd>${fmt(v("sans_doi"))}<small>${part(v("sans_doi"))}</small></dd></div>
+      <div><dt>UCA directe, sans labo</dt><dd>${fmt(v("direct_sans_labo"))}<small>${part(v("direct_sans_labo"))}</small></dd></div>
+      <div><dt>Labo, sans UCA directe</dt><dd>${fmt(v("labo_sans_uca_directe"))}<small>${part(v("labo_sans_uca_directe"))}</small></dd></div>
+    </dl>
+    <div class="grid">
+      <section class="wide"><h2>Works par année de publication (depuis 1990)</h2>${canvas("g-an", "Works par année")}</section>
+      <section><h2>Types de documents</h2>${canvas("g-ty", "Works par type")}</section>
+      <section><h2>Statut open access</h2>${canvas("g-oa", "Works par statut open access")}</section>
+      <section class="wide"><h2>Structures les plus présentes</h2>${canvas("g-st", "Works par structure")}</section>
+    </div>`;
+  const stack = c === "all", jeux = stack ? ["core", "xpac"] : [c];
+  const nom = k => k === "core" ? "Corpus principal" : "XPAC";
+  const couleur = k => css(k === "core" ? "--core" : "--xpac");
+  const series = (src, cles) => jeux.map(k => ({label: nom(k), data: cles.map(x => (src[x] || {})[k] || 0), backgroundColor: couleur(k), stack: "s"}));
+
+  const ans = Object.keys(d.by_year || {}).filter(y => /^\d{4}$/.test(y) && +y >= 1990).sort();
+  graphique("g-an", {type: "bar", data: {labels: ans, datasets: series(d.by_year, ans)},
+    options: {scales: {x: axe({stacked: true}), y: axe({stacked: true})}}});
+  const typ = Object.keys(d.by_type || {}).sort((a, b) => pick(d.by_type[b], c) - pick(d.by_type[a], c)).slice(0, 8);
+  graphique("g-ty", {type: "bar", data: {labels: typ, datasets: series(d.by_type, typ)},
+    options: {indexAxis: "y", scales: {x: axe({stacked: true}), y: axe({stacked: true})}}});
+  const oa = Object.keys(d.by_oa || {}).sort((a, b) => pick(d.by_oa[b], c) - pick(d.by_oa[a], c));
+  const pal = ["--core", "--xpac", "--c-nouv", "--c-fus", "--c-intro", "--c-sortis", "--c-nc"];
+  graphique("g-oa", {type: "doughnut", data: {labels: oa, datasets: [{data: oa.map(k => pick(d.by_oa[k], c)),
+    backgroundColor: oa.map((_, i) => css(pal[i % pal.length])), borderColor: css("--bg")}]},
+    options: {plugins: {legend: {position: "right", labels: {color: css("--mute")}}}}});
+  const labs = (d.labs || []).filter(l => !l.direct).sort((a, b) => pick(b, c) - pick(a, c)).slice(0, 12);
+  graphique("g-st", {type: "bar", data: {labels: labs.map(l => l.name), datasets: jeux.map(k => ({
+    label: nom(k), data: labs.map(l => l[k] || 0), backgroundColor: couleur(k), stack: "s"}))},
+    options: {indexAxis: "y", scales: {x: axe({stacked: true}), y: axe({stacked: true})}}});
+}
+
+// ---------------------------------------------------------------- vue : qualité
+function vueQualite(d) {
+  const q = d.qualite, p = $("p-qualite");
+  if (!q || (!q.audits_04 && !q.curation_07)) {
+    p.innerHTML = vide("Pas d'indicateur de qualité pour ce jalon", "Lance les scripts 04 et 07 avant le 09 pour les ajouter.");
+    return;
+  }
+  let html = "";
+  for (const a of q.audits_04 || []) {
+    const c = a.comptages || {};
+    html += `<section style="margin-bottom:30px"><h2>Audit des affiliations : ${esc(a.structure)}</h2>
+      <p class="note">Mots-clés : ${esc((a.mots_cles || []).join(", "))}${a.directes_seulement ? " (auteurs rattachés directement seulement)" : ""}. Analyse du ${jour((a.date_analyse || "").slice(0, 10))}.</p>
+      <dl class="chiffres">
+        <div><dt>Works avec un auteur rattaché</dt><dd>${fmt(c.works_attribues)}</dd></div>
+        <div><dt>Rattachements sans mot-clé</dt><dd>${fmt(c.fp_mots_absents)}</dd></div>
+        <div><dt>Works entièrement suspects</dt><dd>${fmt(c.works_entierement_suspects)}</dd></div>
+        <div><dt>Manques possibles (auteurs)</dt><dd>${fmt(c.manques_auteurs)}</dd></div></dl>
+      <p class="note">Ce sont des candidats à vérifier, pas des erreurs établies.</p></section>`;
+  }
+  if (q.curation_07) {
+    const c = q.curation_07, st = c.statuts || {};
+    html += `<section><h2>Préparation de la curation</h2>
+      <p class="note">Exports de l'outil du ${jour((c.date_analyse || "").slice(0, 10))}.</p>
+      <dl class="chiffres">
+        <div><dt>Works des chaînes à lier</dt><dd>${fmt(c.works_a_lier_outil)}</dd></div>
+        <div><dt>Dont hors périmètre UCA</dt><dd>${fmt(c.works_hors_perimetre_estimes)}</dd></div>
+        <div><dt>Familles mixtes</dt><dd>${fmt(c.familles_mixtes)}</dd></div></dl>
+      <div class="wrap"><table><thead><tr><th>Statut des chaînes</th><th class="n">Chaînes</th><th class="n">Works</th></tr></thead><tbody>
+      ${Object.entries(st).map(([k, v]) => `<tr><td>${esc(k.replace(/_/g, " "))}</td><td class="n">${fmt(v.chaines)}</td><td class="n">${fmt(v.works_outil)}</td></tr>`).join("")}
+      </tbody></table></div></section>`;
+  }
+  p.innerHTML = html;
+}
+
+// ---------------------------------------------------------------- pilotage
+function majComparaison(d) {
+  const e = d.evolution || {}, sel = $("cmp"), avant = sel.value;
+  const options = [];
+  if (e.precedent) options.push(["precedent", `le jalon précédent (${jour(e.precedent.date_de)})`]);
+  if (e.origine) options.push(["origine", `l'origine (${jour(e.origine.date_de)})`]);
+  sel.innerHTML = options.length ? options.map(([k, l]) => `<option value="${k}">${esc(l)}</option>`).join("") : '<option value="">aucune comparaison</option>';
+  sel.disabled = !options.length;
+  if (options.some(([k]) => k === avant)) sel.value = avant;
+}
+
+function dessiner() {
+  if (S.d) PANNEAUX[S.tab](S.d);
+}
+
+function afficherOnglet(nom) {
+  S.tab = nom;
+  document.querySelectorAll(".tabs button").forEach(b => {
+    const actif = b.dataset.tab === nom;
+    b.setAttribute("aria-selected", actif);
+  });
+  for (const t of Object.keys(PANNEAUX)) $("p-" + t).hidden = t !== nom;
+  $("lcmp").hidden = !(nom === "evolution" || nom === "structures");
+  $("lcorp").hidden = nom !== "etat";
+  dessiner();
+}
+
+async function choisirJalon() {
+  const d = await charger($("snap").value);
+  S.d = d;
+  majComparaison(d);
+  const m = d.manifeste;
+  const alerte = $("alerte");
+  if (m && m.complet === false) {
+    alerte.hidden = false;
+    alerte.textContent = `Jalon incomplet : ${fmt(m.works_ecrits)} works récupérés sur ${fmt(m.works_annonces)} annoncés. Les comparaisons sont à interpréter avec prudence.`;
+  } else alerte.hidden = true;
+  dessiner();
+}
+
+async function init() {
+  try {
+    const r = await fetch("data/index.json");
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    S.index = await r.json();
+  } catch (err) {
+    $("sub").textContent = "Impossible de lire data/index.json. En local, ouvre la page avec « py -m http.server » depuis le dossier docs ; sur GitHub, vérifie que le dossier docs/data a été publié.";
+    return;
+  }
+  if (!S.index.length) { $("sub").textContent = "Aucun jalon publié pour l'instant."; return; }
+  const recents = [...S.index].reverse();
+  $("snap").innerHTML = recents.map(x => `<option value="${esc(x.file)}">${esc(jour(x.date))} (${esc(x.snapshot)})</option>`).join("");
+  $("sub").textContent = `${S.index.length} jalon(s) publié(s), du ${jour(S.index[0].date)} au ${jour(S.index[S.index.length - 1].date)}.`;
+  $("snap").addEventListener("change", () => choisirJalon().catch(erreur));
+  $("cmp").addEventListener("change", dessiner);
+  $("corp").addEventListener("change", dessiner);
+  document.querySelectorAll(".tabs button").forEach(b => b.addEventListener("click", () => afficherOnglet(b.dataset.tab)));
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", dessiner);
+  await choisirJalon();
+  afficherOnglet("evolution");
+}
+function erreur(err) { $("sub").textContent = "Erreur : " + err.message; }
+
+init().catch(erreur);
 })();
 </script>
 </body>
