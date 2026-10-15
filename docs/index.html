@@ -336,9 +336,10 @@ function vueEtat(d) {
   graphique("g-ty", {type: "bar", data: {labels: typ, datasets: series(d.by_type, typ)},
     options: {indexAxis: "y", scales: {x: axe({stacked: true}), y: axe({stacked: true})}}});
   const oa = Object.keys(d.by_oa || {}).sort((a, b) => pick(d.by_oa[b], c) - pick(d.by_oa[a], c));
-  const pal = ["--core", "--xpac", "--c-nouv", "--c-fus", "--c-intro", "--c-sortis", "--c-nc"];
+  const COULEURS_OA = {closed: "--c-intro", green: "--c-ratt", bronze: "--c-sortis",
+                       gold: "--xpac", hybrid: "--c-nc", diamond: "--core"};
   graphique("g-oa", {type: "doughnut", data: {labels: oa, datasets: [{data: oa.map(k => pick(d.by_oa[k], c)),
-    backgroundColor: oa.map((_, i) => css(pal[i % pal.length])), borderColor: css("--bg")}]},
+    backgroundColor: oa.map(k => css(COULEURS_OA[k] || "--mute")), borderColor: css("--bg")}]},
     options: {plugins: {legend: {position: "right", labels: {color: css("--mute")}}}}});
   const labs = (d.labs || []).filter(l => !l.direct).sort((a, b) => pick(b, c) - pick(a, c)).slice(0, 12);
   graphique("g-st", {type: "bar", data: {labels: labs.map(l => l.name), datasets: jeux.map(k => ({
@@ -368,14 +369,25 @@ function vueQualite(d) {
   if (q.curation_07) {
     const c = q.curation_07, st = c.statuts || {};
     html += `<section><h2>Préparation de la curation</h2>
-      <p class="note">Exports de l'outil du ${jour((c.date_analyse || "").slice(0, 10))}.</p>
+            <p class="note">Analyse du ${jour((c.date_analyse || "").slice(0, 10))}. Elle repose sur 
+              des exports de l'outil de curation OpenAlex : on y recherche des termes (par exemple « université nice ») avec le filtre « unlinked to UCA », 
+              et chaque chaîne d'affiliation trouvée est classée selon les institutions auxquelles elle est liée. 
+              Les chiffres ne portent donc que sur les chaînes remontées par ces recherches, pas sur toutes les affiliations d'OpenAlex.${c.exports && c.exports.length ? " Fichiers d'export (le nom indique le terme recherché) : " + esc(c.exports.join(", ")) + "." : ""}</p>
       <dl class="chiffres">
         <div><dt>Works des chaînes à lier</dt><dd>${fmt(c.works_a_lier_outil)}</dd></div>
         <div><dt>Dont hors périmètre UCA</dt><dd>${fmt(c.works_hors_perimetre_estimes)}</dd></div>
         <div><dt>Familles mixtes</dt><dd>${fmt(c.familles_mixtes)}</dd></div></dl>
       <div class="wrap"><table><thead><tr><th>Statut des chaînes</th><th class="n">Chaînes</th><th class="n">Works</th></tr></thead><tbody>
       ${Object.entries(st).map(([k, v]) => `<tr><td>${esc(k.replace(/_/g, " "))}</td><td class="n">${fmt(v.chaines)}</td><td class="n">${fmt(v.works_outil)}</td></tr>`).join("")}
-      </tbody></table></div></section>`;
+      </tbody></table></div>
+      <details class="aide"><summary>Que veulent dire ces statuts ?</summary><dl>
+        <dt>couverte UCA directe</dt><dd>La chaîne est liée à UCA elle-même.</dd>
+        <dt>couverte ancien profil</dt><dd>Liée à un ancien profil (ComUE, Université Nice Sophia Antipolis) qui remonte à UCA : rien à faire.</dd>
+        <dt>couverte via labo ou structure</dt><dd>Liée à un labo ou une structure de l'arbre UCA : rien à faire.</dd>
+        <dt>non couverte aucun lien</dt><dd>Aucune institution n'est liée à la chaîne : à examiner, et à lier si c'est un oubli.</dd>
+        <dt>non couverte lien hors arbre</dt><dd>Liée seulement à des institutions hors UCA (CNRS, Inserm, autre établissement) : à examiner.</dd>
+        <dt>Works des chaînes à lier</dt><dd>Works portant des chaînes non couvertes (un work avec deux chaînes compte deux fois). « Hors périmètre UCA » : ceux qui n'étaient pas encore dans le périmètre.</dd>
+        <dt>Familles mixtes</dt><dd>Variantes d'une même chaîne dont certaines sont déjà liées et d'autres non : le lien le plus sûr à poser.</dd></dl></details></section>`;
   }
   p.innerHTML = html;
 }
