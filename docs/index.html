@@ -117,7 +117,7 @@ const classe = n => n > 0 ? "pos" : n < 0 ? "neg" : "nul";
 const SORTIES = [
   ["fusionnes", "Fusionnés : doublons absorbés par une autre fiche", "--c-fus", "fusionnés"],
   ["introuvables", "Introuvables : supprimés probables", "--c-intro", "introuvables"],
-  ["sortis_perimetre", "Sortis du périmètre UCA", "--c-sortis", "sortis du périmètre"],
+  ["sortis_perimetre", "Sortis du périmètre UniCA", "--c-sortis", "sortis du périmètre"],
   ["anomalie_present", "Encore dans le périmètre (à vérifier)", "--c-nc", "encore dans le périmètre"],
   ["non_classes", "Non classés (vérification non lancée)", "--c-nc", "non classés"]];
 const ENTREES = [
@@ -182,7 +182,7 @@ function vueEvolution(d) {
   const lm = e.liens_labos;
 
   p.innerHTML = `
-    <h2 class="hero">Entre le ${jour(e.date_de)} et le ${jour(d.date)}, ${fmt(w.disparus)} works ont quitté le périmètre d'UCA et ${fmt(w.apparus)} y sont entrés.</h2>
+    <h2 class="hero">Entre le ${jour(e.date_de)} et le ${jour(d.date)}, ${fmt(w.disparus)} works ont quitté le périmètre d'UniCA et ${fmt(w.apparus)} y sont entrés.</h2>
     <p class="chapeau">Solde de ${sgn(w.solde)} works${e.jours != null ? " en " + fmt(e.jours) + " jours" : ""}. Le jalon compte ${fmt(nb)} works
       (corpus principal ${fmt(t.core?.works)}, XPAC ${fmt(t.xpac?.works)}) et ${fmt(w.communs)} works sont communs aux deux jalons.</p>
 
@@ -210,8 +210,8 @@ function vueEvolution(d) {
     <details class="aide"><summary>Comment lire ces chiffres</summary><dl>
       <dt>Fusionné</dt><dd>OpenAlex a regroupé deux fiches du même work : l'ancien identifiant disparaît, mais le DOI existe toujours sous un autre identifiant.</dd>
       <dt>Introuvable</dt><dd>Ni l'identifiant ni le DOI ne retrouvent le work : il a probablement été supprimé.</dd>
-      <dt>Sorti du périmètre</dt><dd>Le work existe toujours, mais n'est plus rattaché à UCA ou à l'une de ses structures.</dd>
-      <dt>Rattaché</dt><dd>Le work existait déjà dans OpenAlex et a été rattaché à UCA depuis le jalon précédent (algorithme d'OpenAlex ou curation).</dd>
+      <dt>Sorti du périmètre</dt><dd>Le work existe toujours, mais n'est plus rattaché à UniCA ou à l'une de ses structures.</dd>
+      <dt>Rattaché</dt><dd>Le work existait déjà dans OpenAlex et a été rattaché à UniCA depuis le jalon précédent (algorithme d'OpenAlex ou curation).</dd>
       <dt>Par structure</dt><dd>Un work cosigné par plusieurs structures compte pour chacune ; le total général le compte une seule fois.</dd></dl></details>`;
 
   const idx = S.index.filter(x => x.works != null);
@@ -285,7 +285,7 @@ function vueStructures(d) {
     sel.sort((a, b) => col === "nom" ? dir * a.nom.localeCompare(b.nom, "fr") : dir * ((a[col] ?? 0) - (b[col] ?? 0)));
     $("cpt").textContent = `${fmt(sel.length)} structure(s) sur ${fmt(lignes.length)} avec au moins un mouvement.`;
     $("corps").innerHTML = sel.map(l => `<tr>
-      <td>${esc(l.nom)}${l.direct ? '<span class="sous">affiliation directe à UCA</span>' : (l.ensemble && l.ensemble !== l.nom ? `<span class="sous">${esc(l.ensemble)}</span>` : "")}</td>
+      <td>${esc(l.nom)}${l.direct ? '<span class="sous">affiliation directe à UniCA</span>' : (l.ensemble && l.ensemble !== l.nom ? `<span class="sous">${esc(l.ensemble)}</span>` : "")}</td>
       <td class="n">${fmt(l.works)}</td><td class="n">${fmt(l.perdus)}</td><td class="n">${fmt(l.gagnes)}</td>
       <td class="n ${classe(l.solde)}">${sgn(l.solde)}</td><td class="n">${fmt(l.fus)}</td><td class="n">${fmt(l.sortis)}</td>
       <td class="n">${fmt(l.intro)}</td><td class="n">${fmt(l.ratt)}</td><td class="n">${fmt(l.nouv)}</td>
@@ -315,8 +315,8 @@ function vueEtat(d) {
     <dl class="chiffres">
       <div><dt>Works</dt><dd>${fmt(n)}</dd></div>
       <div><dt>Sans DOI</dt><dd>${fmt(v("sans_doi"))}<small>${part(v("sans_doi"))}</small></dd></div>
-      <div><dt>UCA directe, sans labo</dt><dd>${fmt(v("direct_sans_labo"))}<small>${part(v("direct_sans_labo"))}</small></dd></div>
-      <div><dt>Labo, sans UCA directe</dt><dd>${fmt(v("labo_sans_uca_directe"))}<small>${part(v("labo_sans_uca_directe"))}</small></dd></div>
+      <div><dt>UniCA directe, sans labo</dt><dd>${fmt(v("direct_sans_labo"))}<small>${part(v("direct_sans_labo"))}</small></dd></div>
+      <div><dt>Labo, sans UniCA directe</dt><dd>${fmt(v("labo_sans_uca_directe"))}<small>${part(v("labo_sans_uca_directe"))}</small></dd></div>
     </dl>
     <div class="grid">
       <section class="wide"><h2>Works par année de publication (depuis 1990)</h2>${canvas("g-an", "Works par année")}</section>
@@ -370,23 +370,23 @@ function vueQualite(d) {
     const c = q.curation_07, st = c.statuts || {};
     html += `<section><h2>Préparation de la curation</h2>
             <p class="note">Analyse du ${jour((c.date_analyse || "").slice(0, 10))}. Elle repose sur 
-              des exports de l'outil de curation OpenAlex : on y recherche des termes (par exemple « université nice ») avec le filtre « unlinked to UCA », 
+              des exports de l'outil de curation OpenAlex : on y recherche des termes (par exemple « université nice ») avec le filtre « unlinked to UniCA », 
               et chaque chaîne d'affiliation trouvée est classée selon les institutions auxquelles elle est liée. 
               Les chiffres ne portent donc que sur les chaînes remontées par ces recherches, pas sur toutes les affiliations d'OpenAlex.${c.exports && c.exports.length ? " Fichiers d'export (le nom indique le terme recherché) : " + esc(c.exports.join(", ")) + "." : ""}</p>
       <dl class="chiffres">
         <div><dt>Works des chaînes à lier</dt><dd>${fmt(c.works_a_lier_outil)}</dd></div>
-        <div><dt>Dont hors périmètre UCA</dt><dd>${fmt(c.works_hors_perimetre_estimes)}</dd></div>
+        <div><dt>Dont hors périmètre UniCA</dt><dd>${fmt(c.works_hors_perimetre_estimes)}</dd></div>
         <div><dt>Familles mixtes</dt><dd>${fmt(c.familles_mixtes)}</dd></div></dl>
       <div class="wrap"><table><thead><tr><th>Statut des chaînes</th><th class="n">Chaînes</th><th class="n">Works</th></tr></thead><tbody>
       ${Object.entries(st).map(([k, v]) => `<tr><td>${esc(k.replace(/_/g, " "))}</td><td class="n">${fmt(v.chaines)}</td><td class="n">${fmt(v.works_outil)}</td></tr>`).join("")}
       </tbody></table></div>
       <details class="aide"><summary>Que veulent dire ces statuts ?</summary><dl>
-        <dt>couverte UCA directe</dt><dd>La chaîne est liée à UCA elle-même.</dd>
-        <dt>couverte ancien profil</dt><dd>Liée à un ancien profil (ComUE, Université Nice Sophia Antipolis) qui remonte à UCA : rien à faire.</dd>
-        <dt>couverte via labo ou structure</dt><dd>Liée à un labo ou une structure de l'arbre UCA : rien à faire.</dd>
+        <dt>couverte UniCA directe</dt><dd>La chaîne est liée à UniCA elle-même.</dd>
+        <dt>couverte ancien profil</dt><dd>Liée à un ancien profil (ComUE, Université Nice Sophia Antipolis) qui remonte à UniCA : rien à faire.</dd>
+        <dt>couverte via labo ou structure</dt><dd>Liée à un labo ou une structure de l'arbre UniCA : rien à faire.</dd>
         <dt>non couverte aucun lien</dt><dd>Aucune institution n'est liée à la chaîne : à examiner, et à lier si c'est un oubli.</dd>
-        <dt>non couverte lien hors arbre</dt><dd>Liée seulement à des institutions hors UCA (CNRS, Inserm, autre établissement) : à examiner.</dd>
-        <dt>Works des chaînes à lier</dt><dd>Works portant des chaînes non couvertes (un work avec deux chaînes compte deux fois). « Hors périmètre UCA » : ceux qui n'étaient pas encore dans le périmètre.</dd>
+        <dt>non couverte lien hors arbre</dt><dd>Liée seulement à des institutions hors UniCA (CNRS, Inserm, autre établissement) : à examiner.</dd>
+        <dt>Works des chaînes à lier</dt><dd>Works portant des chaînes non couvertes (un work avec deux chaînes compte deux fois). « Hors périmètre UniCA » : ceux qui n'étaient pas encore dans le périmètre.</dd>
         <dt>Familles mixtes</dt><dd>Variantes d'une même chaîne dont certaines sont déjà liées et d'autres non : le lien le plus sûr à poser.</dd></dl></details></section>`;
   }
   p.innerHTML = html;
