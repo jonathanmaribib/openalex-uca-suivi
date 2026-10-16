@@ -32,5 +32,29 @@
    "fusions": 10,
    "nouveaux_records": 132
   }
+ },
+ {
+  "file": "lineage_all_2026-10-16.json",
+  "snapshot": "lineage_all_2026-10-16",
+  "date": "2026-10-16",
+  "corpus": "all",
+  "works": 124246,
+  "core": 114734,
+  "xpac": 9512,
+  "complet": true,
+  "vs_precedent": {
+   "de": "lineage_all_2026-10-12",
+   "jours": 4,
+   "communs": 123863,
+   "disparus": 1577,
+   "apparus": 383,
+   "solde": -1194,
+   "fusionnes": 1296,
+   "introuvables": 267,
+   "sortis_perimetre": 14,
+   "rattaches": 335,
+   "fusions": 15,
+   "nouveaux_records": 33
+  }
  }
 ]
