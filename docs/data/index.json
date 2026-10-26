@@ -56,5 +56,26 @@
    "fusions": 15,
    "nouveaux_records": 33
   }
+ },
+ {
+  "file": "lineage_all_2026-10-26.json",
+  "snapshot": "lineage_all_2026-10-26",
+  "date": "2026-10-26",
+  "corpus": "all",
+  "works": 115672,
+  "core": 106914,
+  "xpac": 8758,
+  "complet": true,
+  "vs_precedent": {
+   "de": "lineage_all_2026-10-16",
+   "jours": 10,
+   "communs": 115216,
+   "disparus": 9030,
+   "apparus": 456,
+   "solde": -8574,
+   "non_classes": 9030,
+   "rattaches": 355,
+   "nouveaux_records": 101
+  }
  }
 ]
